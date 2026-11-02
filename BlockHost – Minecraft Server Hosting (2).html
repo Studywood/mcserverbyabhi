@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BlockHost – Minecraft Server Hosting</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f7f2;--card:#fff;--tx:#1b2418;--mu:#5d6b58;--ac:#3a9d23;--ac2:#2c7a1a;--bd:#d9e2d4;--term:#10170e;--termtx:#b6f0a6;--red:#c0392b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f140d;--card:#182014;--tx:#e8f0e4;--mu:#93a38c;--ac:#5bc236;--ac2:#4aa52b;--bd:#2a3626;--term:#070b06;--termtx:#9be88a;--red:#e5604f}}
+:root[data-theme="dark"]{--bg:#0f140d;--card:#182014;--tx:#e8f0e4;--mu:#93a38c;--ac:#5bc236;--ac2:#4aa52b;--bd:#2a3626;--term:#070b06;--termtx:#9be88a;--red:#e5604f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:960px;margin:0 auto;padding:0 16px}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
+.logo{font-weight:800;font-size:20px;letter-spacing:.5px}.logo b{color:var(--ac)}
+.hero{text-align:center;padding:36px 0 24px}
+.hero h1{font-size:clamp(28px,7vw,48px);margin:0 0 10px;line-height:1.1}
+.hero p{color:var(--mu);max-width:560px;margin:0 auto 18px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--ac2)}.btn.o{background:transparent;color:var(--tx);border:1px solid var(--bd)}.btn.r{background:var(--red)}
+.btn:disabled{opacity:.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:18px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+.card h3{margin:0 0 4px;font-size:16px}.card p{margin:0;color:var(--mu);font-size:14px}
+h2{margin:28px 0 10px;font-size:22px}
+label{display:block;font-size:13px;color:var(--mu);margin:8px 0 3px}
+input,select{width:100%;padding:10px;border-radius:9px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:15px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--bd);color:var(--mu)}
+.on{background:var(--ac);color:#fff}.st{background:#e0a100;color:#fff}
+.term{background:var(--term);color:var(--termtx);font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:10px;padding:10px;height:170px;overflow:auto;margin-top:10px;white-space:pre-wrap}
+.bar{height:8px;background:var(--bd);border-radius:9px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--ac);width:0;transition:width .6s}
+.mods span{display:inline-block;margin:3px 4px 0 0}
+.sh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+footer{color:var(--mu);font-size:13px;text-align:center;padding:30px 0}
+.hint{font-size:12px;color:var(--mu);margin-top:10px}
+label.btn{display:inline-block}
+.note{border-left:4px solid #e0a100;background:var(--card);padding:10px 14px;border-radius:8px;font-size:13px;color:var(--mu);margin:14px 0}
+</style>
+</head>
+<body>
+<div class="w">
+<header><div class="logo">Block<b>Host</b></div><button class="btn o" id="th">Theme</button></header>
+
+<section class="hero">
+<h1>Your Minecraft server.<br>Always online.</h1>
+<p>Java, Bedrock and Pocket Edition. 24/7 uptime, mods, world import/export, backups and friend invites.</p>
+<button class="btn" onclick="document.getElementById('create').scrollIntoView({behavior:'smooth'})">Create server</button>
+</section>
+
+<div class="grid">
+<div class="card"><h3>24/7 uptime</h3><p>Servers never auto-sleep and restart if they crash.</p></div>
+<div class="card"><h3>Low lag</h3><p>Dedicated CPU and NVMe storage per server.</p></div>
+<div class="card"><h3>Mods and plugins</h3><p>Forge, Fabric, NeoForge, Paper and Vanilla.</p></div>
+<div class="card"><h3>Data safe</h3><p>Persistent disks and automatic backups.</p></div>
+</div>
+
+<div class="note">Demo mode: this panel simulates servers in your browser. Set <code>API_BASE</code> in the script to connect it to a real backend (see my notes).</div>
+
+<h2 id="create">Create a server</h2>
+<div class="card">
+<label>Server name</label><input id="n" placeholder="My Survival World" maxlength="30">
+<label>Edition</label>
+<select id="ed"><option value="java">Java Edition (PC)</option><option value="bedrock">Bedrock Edition (Windows, console, mobile)</option><option value="mcpe">MCPE / Pocket Edition (mobile)</option></select>
+<label>Software</label>
+<select id="sw"></select>
+<label>Version (pick one or type any, e.g. 1.26.100)</label>
+<input id="v" list="vl" value="latest" autocomplete="off"><datalist id="vl"></datalist>
+<div class="hint" id="vh"></div>
+<label>RAM</label>
+<select id="ram"><option value="2">2 GB</option><option value="4" selected>4 GB</option><option value="8">8 GB</option><option value="16">16 GB</option></select>
+<div class="row"><button class="btn" id="cb">Create server</button></div>
+</div>
+
+<h2>My servers</h2>
+<div id="list"></div>
+<footer>BlockHost · Not affiliated with Mojang or Microsoft</footer>
+</div>
+
+<script>
+// Set this to your backend URL (e.g. "https://api.yourdomain.com") to go live.
+// Expected endpoints: GET /servers, POST /servers, POST /servers/:id/start|stop|backup, POST /servers/:id/mods
+const API_BASE = "";
+
+let S = [];
+try { S = JSON.parse(localStorage.getItem("bh_servers") || "[]"); } catch (e) { S = []; }
+const save = () => { try { localStorage.setItem("bh_servers", JSON.stringify(S)); } catch (e) {} };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rid = () => Math.random().toString(36).slice(2, 8);
+const modable = sw => /Forge|Fabric|Paper|Purpur|Pocket|Nukkit|Bedrock/i.test(sw);
+const EDN = { java: "Java", bedrock: "Bedrock", mcpe: "MCPE" };
+
+function log(s, t) { s.log = (s.log || []).concat("[" + new Date().toLocaleTimeString() + "] " + t).slice(-60); }
+
+$("th").onclick = () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme:dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark";
+};
+
+const SW = {
+  java: ["Paper", "Vanilla", "Forge", "Fabric", "NeoForge", "Purpur"],
+  bedrock: ["Bedrock Dedicated (BDS)", "PocketMine-MP", "Nukkit", "Paper + Geyser (cross-play)"],
+  mcpe: ["Bedrock Dedicated (BDS)", "PocketMine-MP", "Nukkit"]
+};
+const VER = {
+  java: ["1.21.4", "1.21.1", "1.20.4", "1.20.1", "1.19.4", "1.18.2", "1.16.5", "1.12.2", "1.8.9"],
+  bedrock: ["1.21.50", "1.21.0", "1.20.80", "1.19.80", "1.16.221"],
+  mcpe: ["1.21.50", "1.20.80", "1.16.201", "1.14.60", "1.1.5"]
+};
+function fillEd() {
+  const e = $("ed").value;
+  $("sw").innerHTML = SW[e].map(x => "<option>" + x + "</option>").join("");
+  $("vl").innerHTML = ["latest"].concat(VER[e]).map(x => '<option value="' + x + '">').join("");
+  $("vh").textContent = e === "java" ? "Java default port: 25565. Newer versions are fetched automatically when released." : e === "bedrock" ? "Bedrock default port: 19132 (UDP). Pick Paper + Geyser to let Java and Bedrock players join together." : "Pocket Edition is Bedrock on mobile. Port 19132 (UDP).";
+}
+$("ed").onchange = fillEd; fillEd();
+const okVer = v => /^(latest|\d+(\.\d+){1,3})$/i.test(v);
+
+$("cb").onclick = () => {
+  const name = $("n").value.trim() || "Minecraft Server";
+  const ed = $("ed").value, sw = $("sw").value, v = $("v").value.trim() || "latest";
+  if (!okVer(v)) { $("vh").textContent = "Enter a version like 1.26.100 or latest."; return; }
+  const geyser = /Geyser/.test(sw);
+  const s = { id: rid(), name, ed, sw, v, ram: +$("ram").value, status: "offline", mods: [], friends: [], backups: 0, log: [], port: ed === "java" || geyser ? 25565 : 19132, bport: geyser ? 19132 : 0 };
+  s.addr = s.id + ".blockhost.gg";
+  log(s, "Server created. Disk allocated.");
+  if (!/^latest$/i.test(v)) log(s, "Version " + v + " will be downloaded from the official release feed on first start.");
+  S.push(s); save(); render();
+  $("n").value = "";
+  $("list").scrollIntoView({ behavior: "smooth" });
+};
+
+function setStatus(s, st) { s.status = st; save(); render(); }
+
+function start(id) {
+  const s = S.find(x => x.id === id); if (!s || s.status !== "offline") return;
+  setStatus(s, "starting");
+  log(s, "Starting " + s.sw + " " + s.v + " with " + s.ram + "G RAM...");
+  [800, 1800, 2800].forEach((d, i) => setTimeout(() => {
+    log(s, ["Loading world data...", "Loaded " + s.mods.length + " mod(s).", "Done! Server is online at " + s.addr][i]);
+    if (i === 2) setStatus(s, "online"); else { save(); render(); }
+  }, d));
+}
+function stop(id) {
+  const s = S.find(x => x.id === id); if (!s || s.status === "offline") return;
+  log(s, "Saving world..."); setStatus(s, "stopping");
+  setTimeout(() => { log(s, "Server stopped. World saved."); setStatus(s, "offline"); }, 1200);
+}
+function backup(id) {
+  const s = S.find(x => x.id === id); s.backups++; log(s, "Backup #" + s.backups + " created."); save(); render();
+}
+function addMod(id) {
+  const s = S.find(x => x.id === id);
+  const el = document.getElementById("m" + id); const m = el.value.trim();
+  if (!m) return;
+  s.mods.push(m); log(s, "Installed mod: " + m); save(); render();
+}
+function del(id) {
+  if (!confirm("Delete this server and its world? This cannot be undone.")) return;
+  S = S.filter(x => x.id !== id); save(); render();
+}
+function imp(id, el, kind) {
+  const s = S.find(x => x.id === id), fs = [...el.files];
+  if (!fs.length) return;
+  if (s.status !== "offline") { log(s, "Stop the server before uploading."); save(); render(); return; }
+  const bd = (s.ed || "java") !== "java";
+  fs.forEach(f => {
+    const mb = (f.size / 1048576).toFixed(1) + " MB";
+    if (kind === "world" && !(bd ? /\.(mcworld|zip)$/i : /\.(zip|7z|tar\.gz)$/i).test(f.name)) { log(s, "Rejected " + f.name + ": use " + (bd ? ".mcworld or .zip" : "a zipped world folder")); return; }
+    if (API_BASE) {
+      const fd = new FormData(); fd.append("file", f);
+      fetch(API_BASE + "/servers/" + id + "/" + kind, { method: "POST", body: fd })
+        .then(r => log(s, r.ok ? "Uploaded " + f.name : "Upload failed: " + f.name))
+        .catch(() => log(s, "Upload failed: " + f.name))
+        .finally(() => { save(); render(); });
+      return;
+    }
+    if (kind === "world") { s.world = f.name + " (" + mb + ")"; log(s, "World imported: " + f.name + ". It loads on next start."); }
+    else { s.mods.push(f.name); log(s, "Uploaded " + f.name + " (" + mb + ")"); }
+  });
+  el.value = ""; save(); render();
+}
+function exp(id) {
+  const s = S.find(x => x.id === id);
+  const ext = (s.ed || "java") === "java" ? "zip" : "mcworld";
+  if (API_BASE) { location.href = API_BASE + "/servers/" + id + "/world/export"; return; }
+  const b = new Blob(["Demo export for " + s.name + ". A real backend returns the full world archive here."], { type: "application/octet-stream" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = s.name.replace(/\W+/g, "_") + "." + ext; a.click();
+  log(s, "World export requested (." + ext + ")."); save(); render();
+}
+function invite(id) {
+  const s = S.find(x => x.id === id), bd = (s.ed || "java") !== "java";
+  const t = "Join my Minecraft server!\n" + EDN[s.ed || "java"] + " " + s.v + "\nAddress: " + s.addr + "\nPort: " + (s.port || 25565) + (s.bport ? "\nBedrock port: " + s.bport : "") + (bd ? "\nServers > Add Server > enter address and port." : "\nMultiplayer > Add Server > paste the address.");
+  if (navigator.share) { navigator.share({ title: s.name, text: t }).catch(() => {}); } else copy(t);
+  log(s, "Invite shared or copied."); save(); render();
+}
+function addFriend(id) {
+  const s = S.find(x => x.id === id), el = document.getElementById("w" + id), n = el.value.trim();
+  if (!n) return;
+  s.friends = (s.friends || []).concat(n); log(s, "Whitelisted " + n); save(); render();
+}
+function copy(a) { try { navigator.clipboard.writeText(a); } catch (e) {} }
+
+function render() {
+  const L = $("list");
+  if (!S.length) { L.innerHTML = '<div class="card"><p>No servers yet. Create your first one above.</p></div>'; return; }
+  L.innerHTML = S.map(s => {
+    const cls = s.status === "online" ? "on" : s.status === "offline" ? "" : "st";
+    const load = s.status === "online" ? 15 + (s.mods.length * 6) : s.status === "offline" ? 0 : 40;
+    return '<div class="card" style="margin-bottom:12px"><div class="sh"><div><h3>' + esc(s.name) +
+      '</h3><p>' + EDN[s.ed || 'java'] + ' · ' + s.sw + ' ' + s.v + ' · ' + s.ram + ' GB · ' + esc(s.addr) + ':' + (s.port || 25565) + '</p></div><span class="pill ' + cls + '">' + s.status + '</span></div>' +
+      '<div class="bar"><i style="width:' + load + '%"></i></div>' +
+      '<div class="row">' +
+      '<button class="btn" ' + (s.status !== "offline" ? "disabled" : "") + ' onclick="start(\'' + s.id + '\')">Start</button>' +
+      '<button class="btn o" ' + (s.status === "offline" ? "disabled" : "") + ' onclick="stop(\'' + s.id + '\')">Stop</button>' +
+      '<button class="btn o" onclick="backup(\'' + s.id + '\')">Backup (' + s.backups + ')</button>' +
+      '<button class="btn o" onclick="copy(\'' + esc(s.addr) + '\')">Copy IP</button>' +
+      '<button class="btn r" onclick="del(\'' + s.id + '\')">Delete</button></div>' +
+      (modable(s.sw) ? '<div class="row"><input id="m' + s.id + '" placeholder="Mod / plugin name" style="flex:1;min-width:140px"><button class="btn o" onclick="addMod(\'' + s.id + '\')">Add</button></div>' : '') +
+      '<div class="hint">World and files</div><div class="row">' +
+      '<label class="btn o">Import world<input type="file" hidden accept=".zip,.mcworld,.7z,.gz" onchange="imp(\'' + s.id + '\',this,\'world\')"></label>' +
+      '<button class="btn o" onclick="exp(\'' + s.id + '\')">Export world</button>' +
+      '<label class="btn o">Upload files<input type="file" hidden multiple onchange="imp(\'' + s.id + '\',this,\'files\')"></label></div>' +
+      (s.world ? '<div class="hint">World: ' + esc(s.world) + '</div>' : '') +
+      '<div class="hint">Friends</div><div class="row"><button class="btn" onclick="invite(\'' + s.id + '\')">Share invite</button>' +
+      '<input id="w' + s.id + '" placeholder="Friend username or gamertag" style="flex:1;min-width:140px"><button class="btn o" onclick="addFriend(\'' + s.id + '\')">Whitelist</button></div>' +
+      '<div class="mods">' + (s.friends || []).map(f => '<span class="pill on">' + esc(f) + '</span>').join("") + '</div>' +
+      '<div class="hint">Mods, plugins, add-ons</div>' +
+      '<div class="mods">' + s.mods.map(m => '<span class="pill">' + esc(m) + '</span>').join("") + '</div>' +
+      '<div class="term" id="t' + s.id + '">' + esc((s.log || []).join("\n")) + '</div></div>';
+  }).join("");
+  S.forEach(s => { const t = document.getElementById("t" + s.id); if (t) t.scrollTop = t.scrollHeight; });
+}
+
+// Keep "starting"/"stopping" from sticking after a reload
+S.forEach(s => { if (s.status === "starting" || s.status === "stopping") s.status = "offline"; });
+render();
+</script>
+</body>
+</html>
